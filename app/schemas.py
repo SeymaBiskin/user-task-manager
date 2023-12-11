@@ -2,12 +2,17 @@ from datetime import datetime
 from typing import List
 import uuid
 from pydantic import BaseModel, EmailStr, constr, Field
+from enum import Enum
 
+class TaskStatusEnum(str, Enum):
+    Pending = "Pending"
+    Doing = "Doing"
+    Blocked = "Blocked"
+    Done = "Done"
 
 class UserBaseSchema(BaseModel):
     name: str
     email: EmailStr
-    photo: str
 
     class Config:
         from_attributes = True
@@ -34,30 +39,29 @@ class UserResponse(UserBaseSchema):
 class FilteredUserResponse(UserBaseSchema):
     id: uuid.UUID
 
-class PostBaseSchema(BaseModel):
+class TaskBaseSchema(BaseModel):
     title: str
     content: str
     category: str
-    image: str
     user_id: uuid.UUID | None = None
+    status: TaskStatusEnum
 
     class Config:
         from_attributes = True
 
-class CreatePostSchema(PostBaseSchema):
+class CreateTaskSchema(TaskBaseSchema):
     pass
 
-class PostResponse(PostBaseSchema):
+class TaskResponse(TaskBaseSchema):
     id: uuid.UUID
     user: FilteredUserResponse
     created_at: datetime
     updated_at: datetime
 
-class UpdatePostSchema(BaseModel):
+class UpdateTaskSchema(BaseModel):
     title: str
     content: str
     category: str
-    image: str
     user_id: uuid.UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
@@ -66,7 +70,7 @@ class UpdatePostSchema(BaseModel):
         orm_mode = True
 
 
-class ListPostResponse(BaseModel):
+class ListTaskResponse(BaseModel):
     status: str
     results: int
-    posts: List[PostResponse]
+    posts: List[TaskResponse]
